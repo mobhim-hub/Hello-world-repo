@@ -1,8 +1,9 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQube 'MySonarScanner'  // name from Jenkins tool config
+    environment {
+        // Optional: if sonar-scanner is globally available
+        PATH = "/opt/sonar-scanner/bin:$PATH"
     }
 
     stages {
@@ -22,7 +23,7 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                timeout(time: 1, unit: 'MINUTES') {
+                timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
