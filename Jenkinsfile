@@ -1,23 +1,30 @@
 pipeline {
     agent any
 
+    tools {
+        sonarQube 'MySonarScanner'  // name from Jenkins tool config
+    }
+
     stages {
-        stage('First Hello') {
+        stage('Checkout') {
             steps {
-                echo 'Hello, World'
+                git 'https://github.com/your/repo.git'
             }
         }
 
-        stage('Wait') {
+        stage('SonarQube Analysis') {
             steps {
-                echo 'Waiting for 20 seconds...'
-                sleep time: 20, unit: 'SECONDS'
+                withSonarQubeEnv('MySonarServer') {
+                    sh 'sonar-scanner'
+                }
             }
         }
 
-        stage('Second Hello') {
+        stage("Quality Gate") {
             steps {
-                echo 'Hello, World'
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
